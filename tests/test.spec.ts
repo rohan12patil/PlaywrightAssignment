@@ -18,14 +18,14 @@ async function ensureLoggedIn(page: Page) {
 
 
     // Perform login if not already logged in
-   // console.log('Not logged in, performing login...');
+    // console.log('Not logged in, performing login...');
     await page.goto(data.url);
     await page.fill('input[type="email"]', data.email);
     await page.fill('input[type="password"]', data.password);
     await page.click('[data-testid="SignInLocal-signInButton"]');
     // Wait until the URL contains 'dashboards' after login
     await expect(page).toHaveURL(/.*dashboards.*/);
-    
+
     // console.log('Login successful! Current URL:', pageURL);
 }
 
@@ -36,7 +36,7 @@ test.describe('Dashboard Tooltip & PDF Export Scenarios', () => {
         console.log(testInfo.title);
         console.log('Current page URL:', page.url());
     });
-    
+
 
     test('Case 1: Verify tooltip Scenario', async ({ page }) => {
         // First, locate the iframe within the MuiBox-root container
@@ -54,18 +54,22 @@ test.describe('Dashboard Tooltip & PDF Export Scenarios', () => {
         const panel = frame.locator('[data-viz-panel-key="panel-1"]');
         await panel.waitFor({ state: "visible" });
         await expect(panel).toBeVisible();
-        await panel.hover({position:{x:220,y:150}});
+        
+        // Add a short delay to allow the tooltip to render
+        await page.waitForTimeout(100);
+        await panel.hover({ position: { x: 220, y: 150 } });
+        await page.waitForTimeout(200);
 
         // Locate the tooltip div using the style selector and filter by text content containing '-' and ':'
         const tooltipDiv = frame.locator('#grafana-portal-container div:has-text("-"):has-text(":")').first();
-        await tooltipDiv.waitFor({state:"visible"});
+        await tooltipDiv.waitFor({ state: "visible" });
         await expect(tooltipDiv).toBeVisible();
 
         // Extract the timestamp from the tooltip
         const tooltipTimestamp = await tooltipDiv.textContent();
         console.log(tooltipTimestamp)
         // Define the expected timestamp (replace with actual expected value)
-         const expectedTimestamp = '2025-01-08 06:00:00';
+        const expectedTimestamp = '2025-01-08 06:00:00';
 
         // Assert that the tooltip timestamp contains the expected value
         expect(tooltipTimestamp?.trim()).toContain(expectedTimestamp);
@@ -79,7 +83,7 @@ test.describe('Dashboard Tooltip & PDF Export Scenarios', () => {
 
         // Wait for the dialog to appear
         const asyncActionDialog = page.locator('[data-testid="AsyncActionDialog"]');
-        await asyncActionDialog.waitFor({state:"visible"});
+        await asyncActionDialog.waitFor({ state: "visible" });
         await expect(asyncActionDialog).toBeVisible();
 
         // Select the radio button for PDF
@@ -95,7 +99,7 @@ test.describe('Dashboard Tooltip & PDF Export Scenarios', () => {
 
         // Wait for the AsyncActionResultDialog to appear
         const asyncActionResultDialog = page.locator('[data-testid="AsyncActionResultDialog"]');
-        await asyncActionResultDialog.waitFor({state:"visible", timeout:120000});
+        await asyncActionResultDialog.waitFor({ state: "visible", timeout: 120000 });
         await expect(asyncActionResultDialog).toBeVisible();
 
         // Locate the anchor tag with the text "Download" and click it
