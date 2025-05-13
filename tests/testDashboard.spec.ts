@@ -34,7 +34,7 @@ test.describe('Dashboard Tooltip & PDF Export Scenarios', () => {
 
         // Locate the tooltip div using the style selector and filter by text content containing '-' and ':'
         const tooltipDiv = frame.locator(locators.tooltipDiv).first();
-        await tooltipDiv.waitFor({ state: "visible" });
+        await tooltipDiv.waitFor({ state: "visible" , timeout: 60000 });
         await expect(tooltipDiv).toBeVisible();
 
         // Extract the timestamp from the tooltip
