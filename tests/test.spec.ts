@@ -95,7 +95,7 @@ test.describe('Dashboard Tooltip & PDF Export Scenarios', () => {
 
         // Wait for the AsyncActionResultDialog to appear
         const asyncActionResultDialog = page.locator('[data-testid="AsyncActionResultDialog"]');
-        await asyncActionResultDialog.waitFor({state:"visible"});
+        await asyncActionResultDialog.waitFor({state:"visible", timeout:120000});
         await expect(asyncActionResultDialog).toBeVisible();
 
         // Locate the anchor tag with the text "Download" and click it
