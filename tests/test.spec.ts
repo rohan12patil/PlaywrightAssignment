@@ -1,5 +1,6 @@
 import { test, expect, Page } from '@playwright/test';
-import { ensureLoggedIn } from '../utils/auth';
+import { ensureLoggedIn } from './utils/auth';
+import { locators } from './utils/locators';
 
 test.describe('Dashboard Tooltip & PDF Export Scenarios', () => {
 
@@ -9,12 +10,11 @@ test.describe('Dashboard Tooltip & PDF Export Scenarios', () => {
         console.log('Current page URL:', page.url());
     });
 
-
     test('Case 1: Verify tooltip Scenario', async ({ page }) => {
         // First, locate the iframe which contains the graph
-        const iframeElementHandle = await page.locator('div.MuiBox-root iframe').first();
+        const iframeElementHandle = await page.locator(locators.iframe).first();
 
-        // Wait untill the iframe is attached to the DOM
+        // Wait until the iframe is attached to the DOM
         await iframeElementHandle.waitFor({ state: "visible" });
         await expect(iframeElementHandle).toBeAttached();
 
@@ -22,8 +22,8 @@ test.describe('Dashboard Tooltip & PDF Export Scenarios', () => {
         const frame = await iframeElementHandle.contentFrame();
         if (!frame) throw new Error('iframe not available or not yet loaded');
 
-        // Now locate & check visiblilty of the graph canvas inside the iframe 
-        const panel = frame.locator('[data-viz-panel-key="panel-1"]');
+        // Now locate & check visibility of the graph canvas inside the iframe 
+        const panel = frame.locator(locators.panel);
         await panel.waitFor({ state: "visible" });
         await expect(panel).toBeVisible();
         
@@ -33,13 +33,13 @@ test.describe('Dashboard Tooltip & PDF Export Scenarios', () => {
         await page.waitForTimeout(200);
 
         // Locate the tooltip div using the style selector and filter by text content containing '-' and ':'
-        const tooltipDiv = frame.locator('#grafana-portal-container div:has-text("-"):has-text(":")').first();
+        const tooltipDiv = frame.locator(locators.tooltipDiv).first();
         await tooltipDiv.waitFor({ state: "visible" });
         await expect(tooltipDiv).toBeVisible();
 
         // Extract the timestamp from the tooltip
         const tooltipTimestamp = await tooltipDiv.textContent();
-        console.log(tooltipTimestamp)
+        console.log('tooltip::',tooltipTimestamp);
         // Define the expected timestamp, based on hover X & Y value  
         const expectedTimestamp = '2025-01-08 06:00:00';
 
@@ -49,35 +49,34 @@ test.describe('Dashboard Tooltip & PDF Export Scenarios', () => {
 
     test('Test 2: Download PDF functionality', async ({ page }) => {
         // Locate and click the download button 
-        const actionToggleButton = page.locator('[data-testid="ActionToggleButton"] >> svg[data-testid="CloudDownloadIcon"]');
+        const actionToggleButton = page.locator(locators.actionToggleButton);
         await expect(actionToggleButton).toBeVisible();
         await actionToggleButton.click();
 
-        // Wait for the exprt data dialog to appear
-        const exportDataDialog = page.locator('[data-testid="AsyncActionDialog"]');
+        // Wait for the export data dialog to appear
+        const exportDataDialog = page.locator(locators.exportDataDialog);
         await exportDataDialog.waitFor({ state: "visible" });
         await expect(exportDataDialog).toBeVisible();
 
         // Select the radio button for PDF format
-        const pdfRadioButton = exportDataDialog.locator('input[type="radio"][value="pdf"]');
+        const pdfRadioButton = exportDataDialog.locator(locators.pdfRadioButton);
         await expect(pdfRadioButton).toBeVisible();
         await pdfRadioButton.click();
 
         // Click the Save to Files button to download the PDF
-        const saveToFilesButton = exportDataDialog.locator('[data-testid="AsyncActionDialog-okButton"]');
+        const saveToFilesButton = exportDataDialog.locator(locators.saveToFilesButton);
         await expect(saveToFilesButton).toBeVisible();
         await saveToFilesButton.click();
         console.log('Save to Files button clicked, waiting for Download Dialog to appear...');
 
         // Wait for the Download Dialog to appear
-        const downloadDialog = page.locator('[data-testid="AsyncActionResultDialog"]');
+        const downloadDialog = page.locator(locators.downloadDialog);
         await downloadDialog.waitFor({ state: "visible", timeout: 120000 });
         await expect(downloadDialog).toBeVisible();
 
         // Locate the anchor tag with the text "Download" and click it
-        const downloadLink = downloadDialog.locator('a:has-text("Download")');
+        const downloadLink = downloadDialog.locator(locators.downloadLink);
         await expect(downloadLink).toBeVisible();
         await downloadLink.click();
     });
 });
-
