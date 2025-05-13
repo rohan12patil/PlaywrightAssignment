@@ -2,7 +2,7 @@ import { expect, Page } from '@playwright/test';
 import * as fs from 'fs';
 
 // Load data from data.json
-const data = JSON.parse(fs.readFileSync('./tests/data.json', 'utf-8'));
+const data = JSON.parse(fs.readFileSync('./tests/data/data.json', 'utf-8'));
 
 // Reusable login function
 export async function ensureLoggedIn(page: Page) {
